@@ -1,1 +1,4 @@
-/db
+db/
+dbenv/
+dbEnvRequirements.txt
+.env
