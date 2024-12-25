@@ -1,3 +1,4 @@
+# config.py
 import os
 from getpass import getpass
 from dotenv import load_dotenv
@@ -6,6 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
+    """Configuration class for Flask app."""
+    
     # General settings
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_default_secret_key')
 
@@ -15,13 +18,20 @@ class Config:
     DB_PORT = os.getenv('DB_PORT', '5432')
     DB_NAME = os.getenv('DB_NAME', 'default_db')
 
-    # Prompt for the database password at runtime
-    DB_PASSWORD = getpass(prompt="Enter your database password: ")
+    # DB_PASSWORD will be set once when prompted
+    DB_PASSWORD = None
 
-    # SQLAlchemy configuration
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
+    @classmethod
+    def get_db_password(cls):
+        """Get the database password (prompt if not in environment)."""
+        if cls.DB_PASSWORD is None:
+            cls.DB_PASSWORD = os.getenv('DB_PASSWORD') or getpass("Enter database password: ")
+        return cls.DB_PASSWORD
+
+    @classmethod
+    def get_database_uri(cls):
+        """Construct the database URI with the password."""
+        db_password = cls.get_db_password()  # Ensure password is retrieved only once
+        return f"postgresql://{cls.DB_USER}:{db_password}@{cls.DB_HOST}:{cls.DB_PORT}/{cls.DB_NAME}"
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # Additional configurations can go here as needed

@@ -1,10 +1,10 @@
+# init.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from dotenv import load_dotenv
-import os
-from getpass import getpass
+from app.config import Config
 
 # Initialize Flask extensions
 db = SQLAlchemy()
@@ -18,28 +18,32 @@ def create_app():
     # Create Flask app
     app = Flask(__name__)
 
-    # Prompt for the database password
-    db_password = getpass("Enter database password: ")
+    # Get database URI from Config (this will trigger the password prompt if necessary)
+    db_uri = Config.get_database_uri()  # This ensures we prompt for the password once
 
     # Set up database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = (
-        f"postgresql://{os.getenv('DB_USER')}:{db_password}@"
-        f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-    )
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
 
     # Initialize Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
 
+    # Attempt to connect to the database once at the start
+    try:
+        with app.app_context():
+            db.engine.connect()  # Try to establish a connection
+    except Exception as e:
+        app.logger.error(f"Database connection failed: {e}")
+        raise Exception("Failed to connect to the database. Please check your credentials and try again.")
+
     # Import and register blueprints
-    with app.app_context():
-        from app.routes import register_routes
-        register_routes(app)
+    from app.routes import register_routes
+    register_routes(app)
 
     @app.route('/')
     def home():
-        return 'Hello, World!'
+        return 'Hello World!'
 
     return app
