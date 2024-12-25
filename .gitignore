@@ -1,4 +1,6 @@
-db/
 dbenv/
 dbEnvRequirements.txt
 .env
+__pycache__/
+*.pyc
+migrations/
