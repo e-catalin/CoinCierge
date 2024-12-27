@@ -1,6 +1,6 @@
 def register_routes(app):
-    from .customer import customer_bp
-    from .transaction import transaction_bp
+    from app.routes.transaction import transaction_bp
+    from app.routes.customer import customer_bp
 
-    app.register_blueprint(customer_bp, url_prefix='/api/customers')
-    app.register_blueprint(transaction_bp, url_prefix='/api/transactions')
+    app.register_blueprint(customer_bp, url_prefix='/customers')
+    app.register_blueprint(transaction_bp, url_prefix='/transactions')

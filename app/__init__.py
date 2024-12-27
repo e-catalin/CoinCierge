@@ -1,4 +1,4 @@
-# init.py
+# __init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -33,7 +33,7 @@ def create_app():
     # Attempt to connect to the database once at the start
     try:
         with app.app_context():
-            db.engine.connect()  # Try to establish a connection
+            db.engine.connect()
     except Exception as e:
         app.logger.error(f"Database connection failed: {e}")
         raise Exception("Failed to connect to the database. Please check your credentials and try again.")
@@ -45,5 +45,11 @@ def create_app():
     @app.route('/')
     def home():
         return 'Hello World!'
+
+    @app.route('/sum/<x>/<y>')
+    def test(x: int, y: int):
+        print('This is a test')
+        sum = int(x) + int(y)
+        return {'x': x, 'y': y, 'Sum': sum}
 
     return app
