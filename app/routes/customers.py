@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from app.models import Customer, db
 
-customer_bp = Blueprint('customer', __name__)
+customers_bp = Blueprint('customers', __name__)
 
-@customer_bp.route('/', methods=['GET'])
+@customers_bp.route('/', methods=['GET'])
 def get_all_customers():
     """
     Fetch all customers from the database.
@@ -19,7 +19,7 @@ def get_all_customers():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@customer_bp.route('/<int:customer_id>', methods=['GET'])
+@customers_bp.route('/<int:customer_id>', methods=['GET'])
 def get_customer(customer_id):
     """
     Fetch a specific customer by ID.
@@ -33,3 +33,21 @@ def get_customer(customer_id):
         return jsonify({"status": "success", "data": customer_data}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@customers_bp.route('/', methods=['POST'])
+def create_customer():
+    data = request.get_json()
+    try:
+        customer = Customer(
+            name=data['name'],
+            email=data['email'],
+            password=data['password']
+        )
+        db.session.add(customer)
+        db.session.commit()
+        return jsonify({"status": "success", "data": {"id": customer.id, "name": customer.name}}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+

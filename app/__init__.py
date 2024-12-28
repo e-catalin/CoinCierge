@@ -1,4 +1,3 @@
-# __init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -7,7 +6,7 @@ from dotenv import load_dotenv
 from app.config import Config
 
 # Initialize Flask extensions
-db = SQLAlchemy()
+db = SQLAlchemy()  # Initialize SQLAlchemy instance
 migrate = Migrate()
 
 def create_app():
@@ -25,15 +24,15 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
 
-    # Initialize Flask extensions
-    db.init_app(app)
+    # Initialize Flask extensions with the app
+    db.init_app(app)  # This line links the Flask app to the SQLAlchemy instance
     migrate.init_app(app, db)
     CORS(app)
 
     # Attempt to connect to the database once at the start
     try:
         with app.app_context():
-            db.engine.connect()
+            db.engine.connect()  # Test database connection
     except Exception as e:
         app.logger.error(f"Database connection failed: {e}")
         raise Exception("Failed to connect to the database. Please check your credentials and try again.")
